@@ -2,8 +2,8 @@
 {
     public class Article
     {
-        public int Id { get; set; }
-        public string? Title { get; set; }
-        public string? Author { get; set; }
+        public virtual int Id { get; set; }
+        public virtual string? Title { get; set; }
+        public virtual string? Author { get; set; }
     }
 }
