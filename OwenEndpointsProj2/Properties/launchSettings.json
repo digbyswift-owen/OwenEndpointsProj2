@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "OwenEndpointsProj2": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:52588;http://localhost:52589"
+    }
+  }
+}
