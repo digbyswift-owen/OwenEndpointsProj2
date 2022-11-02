@@ -1,24 +1,37 @@
 ﻿using MediatR;
-using OwenEndpointsProj2.Interfaces;
 using OwenEndpointsProj2.Models;
 using OwenEndpointsProj2.Queries;
+using System.Data.SqlClient;
+using System.Data;
+using Dapper;
+
 
 namespace OwenEndpointsProj2.Handlers
 {
     public class GetArticlesHandler : IRequestHandler<GetArticlesQuery, ArticlesResponse>
     {
-        private readonly IArticlesRepository _articlesQueryRepository;
 
-        public GetArticlesHandler(IArticlesRepository articlesQueryRepository)
-        {
-            _articlesQueryRepository = articlesQueryRepository;
-        }
+        String connectionString = "server=xps13\\sqlexpress; database=OwenEndpoints; Integrated Security=true; Encrypt=False";
 
         public async Task<ArticlesResponse> Handle(GetArticlesQuery request, CancellationToken cancellationToken)
         {
-            ArticlesResponse articles = _articlesQueryRepository.GetArticles();
+            string query = "SELECT * FROM Articles";
+            ArticlesResponse articlesRes = new ArticlesResponse();
 
-            return articles;
+            using (IDbConnection db = new SqlConnection(connectionString))
+            {
+
+                db.Open();
+
+                var articles = db.Query<Article>(query).ToList();
+                articlesRes.Response = articles;
+            };
+
+            articlesRes.Timestamp = DateTime.Now;
+            articlesRes.StatusCode = 200;
+
+
+            return articlesRes;
         }
     }
 }

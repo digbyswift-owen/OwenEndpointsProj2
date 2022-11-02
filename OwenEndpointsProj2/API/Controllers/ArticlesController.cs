@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using MySqlX.XDevAPI.Common;
 using OwenEndpointsProj2.Commands;
-using OwenEndpointsProj2.Interfaces;
 using OwenEndpointsProj2.Models;
 using OwenEndpointsProj2.Queries;
-using OwenEndpointsProj2.Repositories;
 using System.Data;
 
     

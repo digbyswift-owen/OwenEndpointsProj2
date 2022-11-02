@@ -1,7 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using OwenEndpointsProj2.Interfaces;
-using OwenEndpointsProj2.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +10,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(typeof(Program));
-builder.Services.AddSingleton<IArticlesRepository, ArticlesRepository>();
 
 var app = builder.Build();
 

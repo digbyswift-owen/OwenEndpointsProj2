@@ -1,24 +1,50 @@
 ﻿using MediatR;
-using OwenEndpointsProj2.Interfaces;
+using Dapper;
 using OwenEndpointsProj2.Models;
 using OwenEndpointsProj2.Commands;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace OwenEndpointsProj2.Handlers
 {
     public class PostArticleHandler : IRequestHandler<PostArticleCommand, SingleArticleResponse>
     {
-        private readonly IArticlesRepository _articlesRepository;
-
-        public PostArticleHandler(IArticlesRepository articlesRepository)
-        {
-            _articlesRepository = articlesRepository;
-        }
+        String connectionString = "server=xps13\\sqlexpress; database=OwenEndpoints; Integrated Security=true; Encrypt=False";
 
         public async Task<SingleArticleResponse> Handle(PostArticleCommand request, CancellationToken cancellationToken)
         {
-            SingleArticleResponse article = _articlesRepository.PostArticle(request.Title, request.Author);
+            ArticlesResponse articlesRes = new ArticlesResponse();
 
-            return article;
+            using (IDbConnection db = new SqlConnection(connectionString))
+            {
+                db.Open();
+                var parameters = new { Title = request.Title, Author = request.Author };
+                var transaction = "SET XACT_ABORT ON; BEGIN TRAN INSERT INTO Articles (title, author) VALUES (@Title, @Author); COMMIT TRAN";
+                var rows = db.Execute(transaction, parameters);
+                if (rows > 0)
+                {
+                    Article postedArticle = new Article();
+                    SingleArticleResponse response = new SingleArticleResponse();
+
+                    postedArticle.Title = request.Title;
+                    postedArticle.Author = request.Author;
+
+                    response.StatusCode = 200;
+                    response.Timestamp = DateTime.Now;
+                    response.Response = postedArticle;
+
+                    return response;
+                }
+                else
+                {
+                    SingleArticleResponse response = new SingleArticleResponse();
+                    response.StatusCode = 500;
+                    response.Timestamp = DateTime.Now;
+                    response.Response = null;
+
+                    return response;
+                }
+            };
         }
     }
 
