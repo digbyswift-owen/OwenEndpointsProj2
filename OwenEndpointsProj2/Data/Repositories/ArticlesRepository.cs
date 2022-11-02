@@ -79,8 +79,8 @@ namespace OwenEndpointsProj2.Repositories
             {
                 db.Open();
                 var parameters = new { Title = title, Author = author };
-                var sql = "INSERT INTO Articles (title, author) VALUES (@Title, @Author);";
-                var rows = db.Execute(sql, parameters);
+                var transaction = "SET XACT_ABORT ON; BEGIN TRAN INSERT INTO Articles (title, author) VALUES (@Title, @Author); COMMIT TRAN";
+                var rows = db.Execute(transaction, parameters);
                 if (rows > 0)
                 {
                     Article postedArticle = new Article();
