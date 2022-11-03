@@ -5,16 +5,19 @@ using OwenEndpointsProj2.Data;
 using System.Reflection;
 using NHibernate;
 using ISession = NHibernate.ISession;
+using OwenEndpointsProj2.Controllers;
 
 namespace OwenEndpointsProj2.Repositories
 {
     public class Repository
     {
-        public ISession session;
+        public ISession _session;
+        private readonly ILogger<ArticlesController> _logger;
 
-        public Repository(NHibernate.ISession session)
+        public Repository(NHibernate.ISession session, ILogger<ArticlesController> logger)
         {
-            this.session = session;
+            _session = session;
+            _logger = logger;
         }
 
         public SingleArticleResponse PostArticle(string author, string title)
@@ -22,15 +25,16 @@ namespace OwenEndpointsProj2.Repositories
             Article articleSubmission = new Article { Title = title, Author = author };
             SingleArticleResponse response = new SingleArticleResponse();
 
-            using (session)
+            using (_session)
             {
-                using (var transaction = session.BeginTransaction())
+                using (var transaction = _session.BeginTransaction())
                 {
+                    _logger.LogInformation("In PostArticle transaction");
                     try
                     {
                         //session.SaveOrUpdate(articleSubmission);
 
-                        session.Save(articleSubmission);
+                        _session.Save(articleSubmission);
 
                         articleSubmission.Title = articleSubmission.Title;
                         //session.Update(articleSubmission);
@@ -45,6 +49,7 @@ namespace OwenEndpointsProj2.Repositories
                     {
                         if (transaction.WasCommitted)
                         {
+                            _logger.LogInformation("Transaction was commited");
                             response.Timestamp = DateTime.Now;
                             response.Message = "Post Committed";
                             response.StatusCode = 200;
@@ -52,6 +57,7 @@ namespace OwenEndpointsProj2.Repositories
                         }
                         else if (transaction.WasRolledBack)
                         {
+                            _logger.LogInformation("Transaction was rolled back");
                             response.Timestamp = DateTime.Now;
                             response.Message = "Post Was Not Commited";
                             response.StatusCode = 400;

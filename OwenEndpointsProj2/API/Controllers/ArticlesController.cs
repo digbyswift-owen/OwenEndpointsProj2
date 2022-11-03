@@ -14,11 +14,13 @@ namespace OwenEndpointsProj2.Controllers
         private readonly IMediator _mediator;
         private readonly NHibernate.ISession _session;
 
-        
-        public ArticlesController(IMediator mediator, NHibernate.ISession session)
+        private readonly ILogger<ArticlesController> _logger;
+
+        public ArticlesController(IMediator mediator, NHibernate.ISession session, ILogger<ArticlesController> logger)
         {
             _mediator = mediator;
             _session = session;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -40,8 +42,9 @@ namespace OwenEndpointsProj2.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string title, string author)
         {
+            _logger.LogInformation("In Articles Post Method");
             //var article = await _mediator.Send(new PostArticleCommand(title, author));
-            Repository repository = new Repository(_session);
+            Repository repository = new Repository(_session, _logger);
             var article = repository.PostArticle(author, title);
 
             return Ok(article);
