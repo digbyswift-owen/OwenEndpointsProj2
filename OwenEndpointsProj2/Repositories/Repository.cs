@@ -2,19 +2,27 @@
 using OwenEndpointsProj2.Models;
 using OwenEndpointsProj2.Commands;
 using OwenEndpointsProj2.Data;
+using System.Reflection;
+using NHibernate;
+using ISession = NHibernate.ISession;
 
-
-namespace OwenEndpointsProj2.Handlers
+namespace OwenEndpointsProj2.Repositories
 {
-    public class PostArticleHandler : IRequestHandler<PostArticleCommand, SingleArticleResponse>
+    public class Repository
     {
-        public async Task<SingleArticleResponse> Handle(PostArticleCommand request, CancellationToken cancellationToken)
+        public ISession session;
+
+        public Repository(NHibernate.ISession session)
         {
-            var sessionFactory = NHibernateHelper.CreateSessionFactory();
-            var articleSubmission = new Article { Title = request.Title, Author = request.Author };
+            this.session = session;
+        }
+
+        public SingleArticleResponse PostArticle(string author, string title)
+        {
+            Article articleSubmission = new Article { Title = title, Author = author };
             SingleArticleResponse response = new SingleArticleResponse();
 
-            using (var session = sessionFactory.OpenSession())
+            using (session)
             {
                 using (var transaction = session.BeginTransaction())
                 {
@@ -50,16 +58,17 @@ namespace OwenEndpointsProj2.Handlers
                             response.Response = articleSubmission;
                         }
                     }
+
+                    return response;
                 }
             }
 
-            using (var session = sessionFactory.OpenSession())
-            {
-                var s = session.Get<Article>(articleSubmission.Id);
-                response.Response = s;
-                return response;
-            }
+            //using (session)
+            //{
+            //    var s = session.Get<Article>(articleSubmission.Id);
+            //    response.Response = s;
+            //    return response;
+            //}
         }
-    }
+    }      
 }
-

@@ -1,14 +1,10 @@
-﻿using Dapper;
+﻿
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using MySqlX.XDevAPI.Common;
 using OwenEndpointsProj2.Commands;
-using OwenEndpointsProj2.Models;
 using OwenEndpointsProj2.Queries;
-using System.Data;
+using OwenEndpointsProj2.Repositories;
 
-    
 namespace OwenEndpointsProj2.Controllers
 {
     [Route("api/[controller]")]
@@ -16,10 +12,13 @@ namespace OwenEndpointsProj2.Controllers
     public class ArticlesController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly NHibernate.ISession _session;
 
-        public ArticlesController(IMediator mediator)
+        
+        public ArticlesController(IMediator mediator, NHibernate.ISession session)
         {
             _mediator = mediator;
+            _session = session;
         }
 
         [HttpGet]
@@ -41,9 +40,12 @@ namespace OwenEndpointsProj2.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string title, string author)
         {
-            var article = await _mediator.Send(new PostArticleCommand(title, author));
+            //var article = await _mediator.Send(new PostArticleCommand(title, author));
+            Repository repository = new Repository(_session);
+            var article = repository.PostArticle(author, title);
 
             return Ok(article);
+
         }
     }
 }
